@@ -1,5 +1,4 @@
-![travelling](https://github.com/user-attachments/assets/3fbb1579-dfe6-4f93-bad6-13d9c0a97b1a)
-
+![travelling](https://github.com/user-attachments/assets/6e8d91a3-9dd7-4673-a19e-deb72e104c8e)
 
 
 Here’s an updated version of your message that reflects the theme of traveling and weather-based planning:
