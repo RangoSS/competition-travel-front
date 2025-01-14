@@ -1,7 +1,12 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Modal, Button, Form } from "react-bootstrap";
-import { FacebookShareButton, WhatsappShareButton, FacebookIcon, WhatsappIcon } from "react-share";
+import {
+  FacebookShareButton,
+  WhatsappShareButton,
+  FacebookIcon,
+  WhatsappIcon,
+} from "react-share";
 import "./landing_page.scss";
 import Navbar from "../../components/navbar/Navbar";
 const credentials = require("./../../components/config/credentials.json");
@@ -14,6 +19,7 @@ const LandingPage = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [visibleCount, setVisibleCount] = useState(6);
   const [weatherInfo, setWeatherInfo] = useState(null);
+  const [forecast, setForecast] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,11 +51,12 @@ const LandingPage = () => {
   const fetchWeather = async (cityName) => {
     try {
       const response = await fetch(
-        `https://api.weatherapi.com/v1/current.json?key=${credentials.apiKey}&q=${cityName}&aqi=no`
+        `https://api.weatherapi.com/v1/forecast.json?key=${credentials.apiKey}&q=${cityName}&days=1&aqi=no&alerts=no`
       );
       if (!response.ok) throw new Error("Failed to fetch weather data.");
       const data = await response.json();
-      setWeatherInfo(data);
+      setWeatherInfo(data.current);
+      setForecast(data.forecast.forecastday[0].day);
     } catch (error) {
       console.error("Error fetching weather data:", error.message);
     }
@@ -59,6 +66,7 @@ const LandingPage = () => {
     setShowDetailsModal(false);
     setSelectedTravel(null);
     setWeatherInfo(null);
+    setForecast(null);
   };
 
   const handleViewMore = (travel) => {
@@ -73,32 +81,46 @@ const LandingPage = () => {
 
   const getWeatherMessage = () => {
     if (!weatherInfo) return "Loading weather data...";
-    const condition = weatherInfo.current.condition.text.toLowerCase();
-    if (condition.includes("hot") || weatherInfo.current.temp_c > 30) {
+    const condition = weatherInfo.condition.text.toLowerCase();
+    if (condition.includes("hot") || weatherInfo.temp_c > 30) {
       return "☀️ It's hot! Great for swimming, hiking, or outdoor fun.";
     }
     if (condition.includes("windy")) {
       return "🌬️ It's windy! Avoid swimming and secure loose objects.";
     }
-    if (condition.includes("rain") || weatherInfo.current.precip_mm > 0) {
+    if (condition.includes("rain") || weatherInfo.precip_mm > 0) {
       return "🌧️ It's rainy! Perfect for indoor activities or cozying up.";
     }
     return "Enjoy your day! The weather looks good.";
   };
 
-  const getWeatherBackgroundColor = () => {
-    if (!weatherInfo) return "lightgray";
-    const condition = weatherInfo.current.condition.text.toLowerCase();
-    if (condition.includes("hot") || weatherInfo.current.temp_c > 30) {
-      return "#FFD700"; // Gold for hot weather
+  const getWeatherBackgroundStyle = () => {
+    if (!weatherInfo) {
+      return {
+        background: "linear-gradient(to right, #D3D3D3, #F5F5F5)", // Neutral gradient
+      };
+    }
+
+    const condition = weatherInfo.condition.text.toLowerCase();
+    if (condition.includes("hot") || weatherInfo.temp_c > 30) {
+      return {
+        background: "linear-gradient(to right, #FF7E5F, #FEB47B)", // Warm gradient
+      };
     }
     if (condition.includes("windy")) {
-      return "#ADD8E6"; // Light blue for windy weather
+      return {
+        background: "linear-gradient(to right, #89F7FE, #66A6FF)", // Breezy gradient
+      };
     }
-    if (condition.includes("rain") || weatherInfo.current.precip_mm > 0) {
-      return "#A9A9A9"; // Gray for rainy weather
+    if (condition.includes("rain") || weatherInfo.precip_mm > 0) {
+      return {
+        background: "linear-gradient(to right, #4B79A1, #283E51)", // Rainy gradient
+      };
     }
-    return "#90EE90"; // Light green for good weather
+
+    return {
+      background: "linear-gradient(to right, #A1FFCE, #FAFFD1)", // Pleasant gradient
+    };
   };
 
   return (
@@ -168,26 +190,45 @@ const LandingPage = () => {
             <strong>Email:</strong> {selectedTravel?.email}
           </p>
 
+          {/* Weather Information */}
           <div
             style={{
-              backgroundColor: getWeatherBackgroundColor(),
-              padding: "10px",
-              borderRadius: "5px",
+              ...getWeatherBackgroundStyle(),
+              padding: "15px",
+              borderRadius: "10px",
+              color: "white",
               marginTop: "10px",
+              textAlign: "center",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
             }}
           >
             <h5>Weather Information</h5>
             <p>{getWeatherMessage()}</p>
+            {forecast && (
+              <div>
+                <p>
+                  <strong>Rain Chance:</strong> {forecast.daily_chance_of_rain}%
+                </p>
+                <p>
+                  <strong>Wind Speed:</strong> {weatherInfo.wind_kph} kph
+                </p>
+                <p>
+                  <strong>Temperature:</strong> {weatherInfo.temp_c}°C
+                </p>
+              </div>
+            )}
             <Button
               variant="link"
               href="https://www.weatherapi.com/"
               target="_blank"
               rel="noopener noreferrer"
+              style={{ color: "#fff", textDecoration: "underline" }}
             >
               View More Weather
             </Button>
           </div>
 
+          {/* Gallery */}
           <h5>Gallery</h5>
           <img
             src={selectedTravel?.photo}
@@ -200,6 +241,7 @@ const LandingPage = () => {
             }}
           />
 
+          {/* Share Buttons */}
           <div className="share-buttons">
             <FacebookShareButton
               url={`http://your-website.com/travel/${selectedTravel?.id}`}
