@@ -4,6 +4,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { FacebookShareButton, WhatsappShareButton, FacebookIcon, WhatsappIcon } from 'react-share';
 import './landing_page.scss';
 import Navbar from "../../components/navbar/Navbar";
+const credentials = require('./../../components/config/credentials.json');
 
 const LandingPage = () => {
   const [travelList, setTravelList] = useState([]);
@@ -12,6 +13,7 @@ const LandingPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [visibleCount, setVisibleCount] = useState(6); // Number of cards visible initially
+  const [weatherInfo, setWeatherInfo] = useState(null); // To store fetched weather data
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,13 +42,47 @@ const LandingPage = () => {
     setFilteredTravel(filtered);
   }, [searchTerm, travelList]);
 
+  const fetchWeather = async (cityName) => {
+    try {
+      const response = await fetch(
+        `https://api.weatherapi.com/v1/current.json?key=${credentials.apiKey}&q=${cityName}&aqi=no`
+      );
+      const data = await response.json();
+      setWeatherInfo(data);
+    } catch (error) {
+      console.error("Error fetching weather data:", error);
+    }
+  };
+
   const handleCloseDetailsModal = () => {
     setShowDetailsModal(false);
     setSelectedTravel(null);
+    setWeatherInfo(null);
+  };
+
+  const handleViewMore = (travel) => {
+    setSelectedTravel(travel);
+    setShowDetailsModal(true);
+    fetchWeather(travel.destination);
   };
 
   const handleLoadMore = () => {
     setVisibleCount(prevCount => prevCount + 6); // Increment the visible cards
+  };
+
+  const getWeatherMessage = () => {
+    if (!weatherInfo) return "Loading weather data...";
+    const condition = weatherInfo.current.condition.text.toLowerCase();
+    if (condition.includes("hot") || weatherInfo.current.temp_c > 30) {
+      return "☀️ It's hot! Great for swimming, hiking, or outdoor fun.";
+    }
+    if (condition.includes("windy")) {
+      return "🌬️ It's windy! Avoid swimming and secure loose objects.";
+    }
+    if (condition.includes("rain") || weatherInfo.current.precip_mm > 0) {
+      return "🌧️ It's rainy! Perfect for indoor activities or cozying up.";
+    }
+    return "Enjoy your day! The weather looks good.";
   };
 
   return (
@@ -76,15 +112,10 @@ const LandingPage = () => {
             />
             <div className="travel-details">
               <h2>{travel.destination}</h2>
-              <p><strong>Start Date:</strong> {new Date(travel.startDate).toLocaleDateString()}</p>
-              <p><strong>End Date:</strong> {new Date(travel.endDate).toLocaleDateString()}</p>
               <p><strong>Description:</strong> {travel.description}</p>
               <Button
                 className="button primary"
-                onClick={() => {
-                  setSelectedTravel(travel);
-                  setShowDetailsModal(true);
-                }}
+                onClick={() => handleViewMore(travel)}
               >
                 View More
               </Button>
@@ -109,11 +140,12 @@ const LandingPage = () => {
         </Modal.Header>
         <Modal.Body>
           <h5>Details</h5>
-          <p><strong>Start Date:</strong> {new Date(selectedTravel?.startDate).toLocaleDateString()}</p>
-          <p><strong>End Date:</strong> {new Date(selectedTravel?.endDate).toLocaleDateString()}</p>
           <p><strong>Description:</strong> {selectedTravel?.description}</p>
           <p><strong>Contact:</strong> {selectedTravel?.contact}</p>
           <p><strong>Email:</strong> {selectedTravel?.email}</p>
+
+          <h5>Weather Information</h5>
+          <p>{getWeatherMessage()}</p>
 
           <h5>Gallery</h5>
           <img

@@ -18,15 +18,15 @@
 
 .travel-cards-container {
   display: flex;
-  flex-wrap: wrap; // Allows wrapping to the next row
-  gap: 1.5rem; // Spacing between cards
-  justify-content: center; // Center the cards
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
   padding: 10px;
 }
 
 .travel-card {
-  flex: 0 1 calc(18rem); // Cards are at least 18rem wide and wrap when necessary
-  max-width: 18rem; // Ensures cards do not exceed 18rem
+  flex: 0 1 calc(20rem); /* Increased card size */
+  max-width: 20rem; /* Increased card size */
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -41,7 +41,7 @@
 
 .travel-image {
   width: 100%;
-  height: 200px;
+  height: 250px; /* Increased height */
   object-fit: cover;
 }
 
@@ -51,14 +51,14 @@
 }
 
 .travel-details h2 {
-  font-size: 1.2rem;
+  font-size: 1.3rem; /* Increased font size */
   color: #333;
 }
 
 .travel-details p {
   margin: 5px 0;
   color: #555;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .button.primary {
@@ -79,4 +79,17 @@
   display: flex;
   justify-content: center;
   margin-top: 20px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .travel-card {
+    flex: 0 1 calc(45rem); /* Adjusted for smaller screen */
+  }
+}
+
+@media (max-width: 576px) {
+  .travel-card {
+    flex: 0 1 100%; /* Full width on very small screens */
+  }
 }
