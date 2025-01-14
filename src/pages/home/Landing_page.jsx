@@ -1,38 +1,38 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; 
 import { useNavigate } from "react-router-dom";
-import { Modal, Button, Form } from 'react-bootstrap';
-import { FacebookShareButton, WhatsappShareButton, FacebookIcon, WhatsappIcon } from 'react-share';
-import './landing_page.scss';
+import { Modal, Button, Form } from "react-bootstrap";
+import { FacebookShareButton, WhatsappShareButton, FacebookIcon, WhatsappIcon } from "react-share";
+import "./landing_page.scss";
 import Navbar from "../../components/navbar/Navbar";
-const credentials = require('./../../components/config/credentials.json');
+const credentials = require("./../../components/config/credentials.json");
 
 const LandingPage = () => {
   const [travelList, setTravelList] = useState([]);
   const [filteredTravel, setFilteredTravel] = useState([]);
   const [selectedTravel, setSelectedTravel] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(6); // Number of cards visible initially
-  const [weatherInfo, setWeatherInfo] = useState(null); // To store fetched weather data
+  const [visibleCount, setVisibleCount] = useState(6);
+  const [weatherInfo, setWeatherInfo] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTravel = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/travel');
+        const response = await fetch("http://localhost:4000/api/travel");
+        if (!response.ok) throw new Error("Failed to fetch travel data.");
         const data = await response.json();
         setTravelList(data);
-        setFilteredTravel(data); // Initially show all travel data
+        setFilteredTravel(data);
       } catch (error) {
-        console.error("Error fetching travel data:", error);
+        console.error("Error fetching travel data:", error.message);
       }
     };
-
     fetchTravel();
   }, []);
 
   useEffect(() => {
-    const filtered = travelList.filter(travel => {
+    const filtered = travelList.filter((travel) => {
       const lowerCaseTerm = searchTerm.toLowerCase();
       return (
         travel.destination.toLowerCase().includes(lowerCaseTerm) ||
@@ -47,10 +47,11 @@ const LandingPage = () => {
       const response = await fetch(
         `https://api.weatherapi.com/v1/current.json?key=${credentials.apiKey}&q=${cityName}&aqi=no`
       );
+      if (!response.ok) throw new Error("Failed to fetch weather data.");
       const data = await response.json();
       setWeatherInfo(data);
     } catch (error) {
-      console.error("Error fetching weather data:", error);
+      console.error("Error fetching weather data:", error.message);
     }
   };
 
@@ -67,7 +68,7 @@ const LandingPage = () => {
   };
 
   const handleLoadMore = () => {
-    setVisibleCount(prevCount => prevCount + 6); // Increment the visible cards
+    setVisibleCount((prevCount) => prevCount + 6);
   };
 
   const getWeatherMessage = () => {
@@ -85,6 +86,21 @@ const LandingPage = () => {
     return "Enjoy your day! The weather looks good.";
   };
 
+  const getWeatherBackgroundColor = () => {
+    if (!weatherInfo) return "lightgray";
+    const condition = weatherInfo.current.condition.text.toLowerCase();
+    if (condition.includes("hot") || weatherInfo.current.temp_c > 30) {
+      return "#FFD700"; // Gold for hot weather
+    }
+    if (condition.includes("windy")) {
+      return "#ADD8E6"; // Light blue for windy weather
+    }
+    if (condition.includes("rain") || weatherInfo.current.precip_mm > 0) {
+      return "#A9A9A9"; // Gray for rainy weather
+    }
+    return "#90EE90"; // Light green for good weather
+  };
+
   return (
     <div className="landing-page">
       <Navbar />
@@ -97,7 +113,7 @@ const LandingPage = () => {
           placeholder="Search destinations..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: '300px', marginBottom: '20px' }}
+          style={{ width: "300px", marginBottom: "20px" }}
         />
       </div>
 
@@ -112,7 +128,9 @@ const LandingPage = () => {
             />
             <div className="travel-details">
               <h2>{travel.destination}</h2>
-              <p><strong>Description:</strong> {travel.description}</p>
+              <p>
+                <strong>Description:</strong> {travel.description}
+              </p>
               <Button
                 className="button primary"
                 onClick={() => handleViewMore(travel)}
@@ -140,25 +158,59 @@ const LandingPage = () => {
         </Modal.Header>
         <Modal.Body>
           <h5>Details</h5>
-          <p><strong>Description:</strong> {selectedTravel?.description}</p>
-          <p><strong>Contact:</strong> {selectedTravel?.contact}</p>
-          <p><strong>Email:</strong> {selectedTravel?.email}</p>
+          <p>
+            <strong>Description:</strong> {selectedTravel?.description}
+          </p>
+          <p>
+            <strong>Contact:</strong> {selectedTravel?.contact}
+          </p>
+          <p>
+            <strong>Email:</strong> {selectedTravel?.email}
+          </p>
 
-          <h5>Weather Information</h5>
-          <p>{getWeatherMessage()}</p>
+          <div
+            style={{
+              backgroundColor: getWeatherBackgroundColor(),
+              padding: "10px",
+              borderRadius: "5px",
+              marginTop: "10px",
+            }}
+          >
+            <h5>Weather Information</h5>
+            <p>{getWeatherMessage()}</p>
+            <Button
+              variant="link"
+              href="https://www.weatherapi.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View More Weather
+            </Button>
+          </div>
 
           <h5>Gallery</h5>
           <img
             src={selectedTravel?.photo}
             alt="Destination"
-            style={{ width: '100%', height: '150px', objectFit: 'cover', margin: '5px' }}
+            style={{
+              width: "100%",
+              height: "150px",
+              objectFit: "cover",
+              margin: "5px",
+            }}
           />
 
           <div className="share-buttons">
-            <FacebookShareButton url={`http://your-website.com/travel/${selectedTravel?.id}`} quote={selectedTravel?.destination}>
+            <FacebookShareButton
+              url={`http://your-website.com/travel/${selectedTravel?.id}`}
+              quote={selectedTravel?.destination}
+            >
               <FacebookIcon size={32} round={true} />
             </FacebookShareButton>
-            <WhatsappShareButton url={`http://your-website.com/travel/${selectedTravel?.id}`} title={selectedTravel?.destination}>
+            <WhatsappShareButton
+              url={`http://your-website.com/travel/${selectedTravel?.id}`}
+              title={selectedTravel?.destination}
+            >
               <WhatsappIcon size={32} round={true} />
             </WhatsappShareButton>
           </div>
