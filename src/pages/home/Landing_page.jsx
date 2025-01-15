@@ -24,6 +24,7 @@ const LandingPage = () => {
   const [forecast, setForecast] = useState(null);
   const [searchedLocation, setSearchedLocation] = useState("");
   const [favoritePlaces, setFavoritePlaces] = useState([]);
+  const [locationCoordinates, setLocationCoordinates] = useState(null); // Track coordinates
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -83,6 +84,7 @@ const LandingPage = () => {
     setShowDetailsModal(true);
     fetchWeather(travel.destination);
     fetchActivities(travel.destination);
+    fetchLocationCoordinates(travel.destination); // Fetch coordinates for map
   };
 
   const handleLoadMore = () => {
@@ -92,10 +94,27 @@ const LandingPage = () => {
   const handleSearchLocation = () => {
     fetchWeather(searchedLocation);
     fetchActivities(searchedLocation);
+    fetchLocationCoordinates(searchedLocation); // Fetch coordinates for searched location
   };
 
   const handleAddToFavorites = (place) => {
     setFavoritePlaces((prev) => [...prev, place]);
+  };
+
+  const fetchLocationCoordinates = async (location) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${location}&format=json&limit=1`
+      );
+      if (!response.ok) throw new Error("Failed to fetch coordinates.");
+      const data = await response.json();
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        setLocationCoordinates({ lat, lon });
+      }
+    } catch (error) {
+      console.error("Error fetching location coordinates:", error.message);
+    }
   };
 
   const getWeatherMessage = () => {
@@ -269,10 +288,7 @@ const LandingPage = () => {
           <div style={{ marginTop: "5px" }}>
             <MapView
               location={selectedTravel?.destination}
-              coordinates={{
-                lat: selectedTravel?.latitude,
-                lon: selectedTravel?.longitude,
-              }}
+              coordinates={locationCoordinates} // Pass the dynamic coordinates
             />
           </div>
 
