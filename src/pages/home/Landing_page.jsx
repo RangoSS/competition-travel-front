@@ -141,7 +141,7 @@ const LandingPage = () => {
                 <strong>Description:</strong> {travel.description}
               </p>
               <Button
-                className="button primary"
+               className="purple"
                 onClick={() => handleViewMore(travel)}
               >
                 View More
@@ -187,7 +187,7 @@ const LandingPage = () => {
             style={{
               padding: "15px",
               borderRadius: "10px",
-              color: "white",
+              color: "black", // Ensuring all text is black
               marginTop: "10px",
               textAlign: "center",
               boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
@@ -212,7 +212,7 @@ const LandingPage = () => {
             )}
 
             {/* Recommended Activities */}
-            <ActivityRecommendations weather={weatherInfo} />
+           {/*  <ActivityRecommendations weather={weatherInfo} />*/}
           </div>
 
           {/* Search Button to find the area */}
@@ -223,7 +223,8 @@ const LandingPage = () => {
               value={searchedLocation}
               onChange={(e) => setSearchedLocation(e.target.value)}
             />
-            <Button variant="primary" onClick={handleSearchLocation}>
+            <Button variant="primary" onClick={handleSearchLocation} style={{ marginTop: "20px", backgroundColor: "#8e44ad", borderColor: "#8e44ad" }} >
+            
               Search
             </Button>
           </div>
@@ -246,7 +247,7 @@ const LandingPage = () => {
           <Button
             variant="success"
             onClick={() => handleAddToFavorites(selectedTravel?.destination)}
-            style={{ marginTop: "20px" }}
+            style={{ marginTop: "20px", backgroundColor: "#8e44ad", borderColor: "#8e44ad" }} // Purple button
           >
             Add to Favorites
           </Button>

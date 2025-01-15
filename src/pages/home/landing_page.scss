@@ -7,7 +7,7 @@
   text-align: center;
   margin-bottom: 20px;
   font-size: 2rem;
-  color: #333;
+  color: black; // All text must be black
 }
 
 .search-bar {
@@ -52,12 +52,12 @@
 
 .travel-details h2 {
   font-size: 1.3rem; /* Increased font size */
-  color: #333;
+  color: black; // Ensuring all text is black
 }
 
 .travel-details p {
   margin: 5px 0;
-  color: #666;
+  color: black; // Ensuring all text is black
 }
 
 .load-more-container {
@@ -69,6 +69,8 @@
 .load-more-container .btn {
   padding: 10px 20px;
   font-size: 1rem;
+  background-color: #8e44ad; /* Purple button */
+  border-color: #8e44ad; /* Purple border */
 }
 
 .share-buttons {
@@ -79,4 +81,18 @@
 
 .share-buttons svg {
   margin: 0 5px;
+}
+.purple {
+  background-color: #8e44ad;  /* Purple color */
+  border-color: #8e44ad;      /* Purple border */
+  color: white;               /* White text */
+  padding: 10px 20px;         /* Padding for the button */
+  font-size: 1rem;            /* Font size */
+  border-radius: 5px;         /* Rounded corners */
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.purple:hover {
+  background-color: #732d91;  /* Darker shade of purple for hover effect */
+  border-color: #732d91;      /* Darker shade of purple for hover effect */
 }
