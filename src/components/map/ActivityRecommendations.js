@@ -36,39 +36,31 @@ const ActivityRecommendations = ({ weather }) => {
 
   useEffect(() => {
     const fetchImage = async () => {
-      const response = await fetch('https://api.pexels.com/v1/search?query=hiking', {
-        headers: {
-          Authorization: 'IZVqFkacHkG8JMDGuwT7V82BzazS0U4RZVBooteGgzmaC0jxnNIeDtjg'
-        }
-      });
-      const data = await response.json();
-      if (data.photos && data.photos.length > 0) {
-        setImageUrl(data.photos[0].src.original);
+      try {
+        const response = await fetch(`https://api.unsplash.com/photos/random?query=${weather?.condition.text}&client_id=YOUR_UNSPLASH_ACCESS_KEY`);
+        const data = await response.json();
+        setImageUrl(data[0]?.urls?.small || '');
+      } catch (error) {
+        console.error("Error fetching image:", error);
       }
     };
-    fetchImage();
-  }, []);
 
-  if (!weather) return null;
-
-  const getRecommendations = (weatherCondition) => {
-    const condition = Object.keys(activities).find(key => 
-      weatherCondition.toLowerCase().includes(key.toLowerCase())
-    ) || 'Clear';
-    return activities[condition];
-  };
+    if (weather) {
+      fetchImage();
+    }
+  }, [weather]);
 
   return (
     <div className="activity-recommendations">
-      <h3>Recommended Activities</h3>
-      {imageUrl && <img src={imageUrl} alt="Activity" style={{ width: '100%', borderRadius: '8px' }} />}
+      <h5>Recommended Activities</h5>
       <ul>
-        {getRecommendations(weather.conditions).map((activity, index) => (
-          <li key={index}>{activity}</li>
+        {activities[weather?.condition.text] && activities[weather?.condition.text].map((activity, idx) => (
+          <li key={idx}>{activity}</li>
         ))}
       </ul>
+      {imageUrl && <img src={imageUrl} alt="Suggested activities" />}
     </div>
   );
 };
 
-export default ActivityRecommendations; 
+export default ActivityRecommendations;

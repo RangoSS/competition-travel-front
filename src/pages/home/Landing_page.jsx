@@ -7,11 +7,11 @@ import {
   FacebookIcon,
   WhatsappIcon,
 } from "react-share";
-import "./landing_page.scss";
 import Navbar from "../../components/navbar/Navbar";
 import MapView from './../../components/map/MapView';
+import ActivityRecommendations from "../../components/map/ActivityRecommendations";
+import "./landing_page.scss";
 const credentials = require("./../../components/config/credentials.json");
-
 
 const LandingPage = () => {
   const [travelList, setTravelList] = useState([]);
@@ -22,6 +22,8 @@ const LandingPage = () => {
   const [visibleCount, setVisibleCount] = useState(6);
   const [weatherInfo, setWeatherInfo] = useState(null);
   const [forecast, setForecast] = useState(null);
+  const [searchedLocation, setSearchedLocation] = useState("");
+  const [favoritePlaces, setFavoritePlaces] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,6 +66,11 @@ const LandingPage = () => {
     }
   };
 
+  const fetchActivities = async (location) => {
+    // Fetch activities based on the location, can be updated with a real API.
+    console.log("Fetching activities for:", location);
+  };
+
   const handleCloseDetailsModal = () => {
     setShowDetailsModal(false);
     setSelectedTravel(null);
@@ -75,10 +82,20 @@ const LandingPage = () => {
     setSelectedTravel(travel);
     setShowDetailsModal(true);
     fetchWeather(travel.destination);
+    fetchActivities(travel.destination);
   };
 
   const handleLoadMore = () => {
     setVisibleCount((prevCount) => prevCount + 6);
+  };
+
+  const handleSearchLocation = () => {
+    fetchWeather(searchedLocation);
+    fetchActivities(searchedLocation);
+  };
+
+  const handleAddToFavorites = (place) => {
+    setFavoritePlaces((prev) => [...prev, place]);
   };
 
   const getWeatherMessage = () => {
@@ -235,43 +252,41 @@ const LandingPage = () => {
             </Button>
           </div>
 
-          {/* Map */}
-          <MapView
-            location={selectedTravel?.destination}
-            coordinates={{
-              lat: selectedTravel?.latitude,
-              lon: selectedTravel?.longitude,
-            }}
-          />
-
-          {/* Gallery */}
-          <h5>Gallery</h5>
-          <img
-            src={selectedTravel?.photo}
-            alt="Destination"
-            style={{
-              width: "100%",
-              height: "150px",
-              objectFit: "cover",
-              margin: "5px",
-            }}
-          />
-
-          {/* Share Buttons */}
-          <div className="share-buttons">
-            <FacebookShareButton
-              url={`http://your-website.com/travel/${selectedTravel?.id}`}
-              quote={selectedTravel?.destination}
-            >
-              <FacebookIcon size={32} round={true} />
-            </FacebookShareButton>
-            <WhatsappShareButton
-              url={`http://your-website.com/travel/${selectedTravel?.id}`}
-              title={selectedTravel?.destination}
-            >
-              <WhatsappIcon size={32} round={true} />
-            </WhatsappShareButton>
+          {/* Search Button to find the area */}
+          <div>
+            <Form.Control
+              type="text"
+              placeholder="Search location..."
+              value={searchedLocation}
+              onChange={(e) => setSearchedLocation(e.target.value)}
+            />
+            <Button variant="primary" onClick={handleSearchLocation}>
+              Search
+            </Button>
           </div>
+
+          {/* Map */}
+          <div style={{ marginTop: "5px" }}>
+            <MapView
+              location={selectedTravel?.destination}
+              coordinates={{
+                lat: selectedTravel?.latitude,
+                lon: selectedTravel?.longitude,
+              }}
+            />
+          </div>
+
+          {/* Add to Favorites */}
+          <Button
+            variant="success"
+            onClick={() => handleAddToFavorites(selectedTravel)}
+            style={{ marginTop: "10px" }}
+          >
+            Add to Favorites
+          </Button>
+
+          {/* Activity Recommendations */}
+          <ActivityRecommendations weather={weatherInfo} />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseDetailsModal}>
