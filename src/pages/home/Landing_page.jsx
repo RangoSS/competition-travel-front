@@ -9,7 +9,9 @@ import {
 } from "react-share";
 import "./landing_page.scss";
 import Navbar from "../../components/navbar/Navbar";
+import MapView from './../../components/map/MapView';
 const credentials = require("./../../components/config/credentials.json");
+
 
 const LandingPage = () => {
   const [travelList, setTravelList] = useState([]);
@@ -174,7 +176,12 @@ const LandingPage = () => {
       )}
 
       {/* Details Modal */}
-      <Modal show={showDetailsModal} onHide={handleCloseDetailsModal}>
+      <Modal
+        show={showDetailsModal}
+        onHide={handleCloseDetailsModal}
+        size="lg"
+        scrollable
+      >
         <Modal.Header closeButton>
           <Modal.Title>{selectedTravel?.destination}</Modal.Title>
         </Modal.Header>
@@ -227,6 +234,15 @@ const LandingPage = () => {
               View More Weather
             </Button>
           </div>
+
+          {/* Map */}
+          <MapView
+            location={selectedTravel?.destination}
+            coordinates={{
+              lat: selectedTravel?.latitude,
+              lon: selectedTravel?.longitude,
+            }}
+          />
 
           {/* Gallery */}
           <h5>Gallery</h5>
