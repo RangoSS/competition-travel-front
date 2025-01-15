@@ -1,64 +1,35 @@
-import React, { useEffect, useState } from 'react';
-
-const activities = {
-  Clear: [
-    "Go hiking",
-    "Visit outdoor attractions",
-    "Have a picnic",
-    "Go sightseeing",
-    "Outdoor photography"
-  ],
-  Clouds: [
-    "Visit museums",
-    "Walking tour",
-    "Shopping",
-    "Café hopping",
-    "City exploration"
-  ],
-  Rain: [
-    "Visit indoor attractions",
-    "Museum tours",
-    "Shopping malls",
-    "Local cuisine experience",
-    "Indoor entertainment"
-  ],
-  Snow: [
-    "Skiing",
-    "Snowboarding",
-    "Winter photography",
-    "Visit warm cafés",
-    "Indoor activities"
-  ]
-};
+import React from "react";
 
 const ActivityRecommendations = ({ weather }) => {
-  const [imageUrl, setImageUrl] = useState('');
+  const activitySuggestions = {
+    hot: ["Swimming", "Beach Day", "Outdoor Hiking", "Water Sports"],
+    cold: ["Skiing", "Snowboarding", "Indoor Activities", "Hot Chocolate"],
+    rainy: ["Museum Visit", "Indoor Games", "Shopping", "Cooking"],
+    clear: ["Hiking", "Cycling", "Picnic", "Nature Walk"],
+  };
 
-  useEffect(() => {
-    const fetchImage = async () => {
-      try {
-        const response = await fetch(`https://api.unsplash.com/photos/random?query=${weather?.condition.text}&client_id=YOUR_UNSPLASH_ACCESS_KEY`);
-        const data = await response.json();
-        setImageUrl(data[0]?.urls?.small || '');
-      } catch (error) {
-        console.error("Error fetching image:", error);
-      }
-    };
-
-    if (weather) {
-      fetchImage();
+  let recommendedActivities = [];
+  if (weather) {
+    const weatherCondition = weather.condition.text.toLowerCase();
+    if (weatherCondition.includes("hot")) {
+      recommendedActivities = activitySuggestions.hot;
+    } else if (weatherCondition.includes("cold")) {
+      recommendedActivities = activitySuggestions.cold;
+    } else if (weatherCondition.includes("rain")) {
+      recommendedActivities = activitySuggestions.rainy;
+    } else {
+      recommendedActivities = activitySuggestions.clear;
     }
-  }, [weather]);
+  }
 
   return (
-    <div className="activity-recommendations">
-      <h5>Recommended Activities</h5>
+    <div>
+      <h4>Recommended Activities for This Weather</h4>
       <ul>
-        {activities[weather?.condition.text] && activities[weather?.condition.text].map((activity, idx) => (
-          <li key={idx}>{activity}</li>
+        {recommendedActivities.map((activity, index) => (
+          <li key={index}>{activity}</li>
         ))}
       </ul>
-      {imageUrl && <img src={imageUrl} alt="Suggested activities" />}
     </div>
   );
 };

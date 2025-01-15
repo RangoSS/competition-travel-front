@@ -110,50 +110,6 @@ const LandingPage = () => {
     setFavoritePlaces((prev) => [...prev, place]);
   };
 
-  const getWeatherMessage = () => {
-    if (!weatherInfo) return "Loading weather data...";
-    const condition = weatherInfo.condition.text.toLowerCase();
-    if (condition.includes("hot") || weatherInfo.temp_c > 30) {
-      return "☀️ It's hot! Great for swimming, hiking, or outdoor fun.";
-    }
-    if (condition.includes("windy")) {
-      return "🌬️ It's windy! Avoid swimming and secure loose objects.";
-    }
-    if (condition.includes("rain") || weatherInfo.precip_mm > 0) {
-      return "🌧️ It's rainy! Perfect for indoor activities or cozying up.";
-    }
-    return "Enjoy your day! The weather looks good.";
-  };
-
-  const getWeatherBackgroundStyle = () => {
-    if (!weatherInfo) {
-      return {
-        background: "linear-gradient(to right, #D3D3D3, #F5F5F5)", // Neutral gradient
-      };
-    }
-
-    const condition = weatherInfo.condition.text.toLowerCase();
-    if (condition.includes("hot") || weatherInfo.temp_c > 30) {
-      return {
-        background: "linear-gradient(to right, #FF7E5F, #FEB47B)", // Warm gradient
-      };
-    }
-    if (condition.includes("windy")) {
-      return {
-        background: "linear-gradient(to right, #89F7FE, #66A6FF)", // Breezy gradient
-      };
-    }
-    if (condition.includes("rain") || weatherInfo.precip_mm > 0) {
-      return {
-        background: "linear-gradient(to right, #4B79A1, #283E51)", // Rainy gradient
-      };
-    }
-
-    return {
-      background: "linear-gradient(to right, #A1FFCE, #FAFFD1)", // Pleasant gradient
-    };
-  };
-
   return (
     <div className="landing-page">
       <Navbar />
@@ -229,17 +185,18 @@ const LandingPage = () => {
           {/* Weather Information */}
           <div
             style={{
-              ...getWeatherBackgroundStyle(),
               padding: "15px",
               borderRadius: "10px",
               color: "white",
               marginTop: "10px",
               textAlign: "center",
               boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+              background: weatherInfo?.condition.text.includes('hot')
+                ? 'linear-gradient(to right, #FF7E5F, #FEB47B)' : 'linear-gradient(to right, #A1FFCE, #FAFFD1)', // Just an example for hot condition
             }}
           >
             <h5>Weather Information</h5>
-            <p>{getWeatherMessage()}</p>
+            <p>{weatherInfo ? `${weatherInfo.condition.text}` : 'Loading weather...'}</p>
             {forecast && (
               <div>
                 <p>
@@ -253,15 +210,9 @@ const LandingPage = () => {
                 </p>
               </div>
             )}
-            <Button
-              variant="link"
-              href="https://www.weatherapi.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "#fff", textDecoration: "underline" }}
-            >
-              View More Weather
-            </Button>
+
+            {/* Recommended Activities */}
+            <ActivityRecommendations weather={weatherInfo} />
           </div>
 
           {/* Search Button to find the area */}
@@ -286,6 +237,7 @@ const LandingPage = () => {
               />
             </div>
             <div style={{ width: "35%", paddingLeft: "20px" }}>
+              {/* Render ActivityRecommendations for weather conditions */}
               <ActivityRecommendations weather={weatherInfo} />
             </div>
           </div>
