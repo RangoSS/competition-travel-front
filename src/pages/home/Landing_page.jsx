@@ -8,7 +8,7 @@ import {
   WhatsappIcon,
 } from "react-share";
 import Navbar from "../../components/navbar/Navbar";
-import MapView from './../../components/map/MapView';
+import MapView from "../../components/map/MapView";
 import ActivityRecommendations from "../../components/map/ActivityRecommendations";
 import "./landing_page.scss";
 const credentials = require("./../../components/config/credentials.json");
@@ -67,40 +67,6 @@ const LandingPage = () => {
     }
   };
 
-  const fetchActivities = async (location) => {
-    // Fetch activities based on the location, can be updated with a real API.
-    console.log("Fetching activities for:", location);
-  };
-
-  const handleCloseDetailsModal = () => {
-    setShowDetailsModal(false);
-    setSelectedTravel(null);
-    setWeatherInfo(null);
-    setForecast(null);
-  };
-
-  const handleViewMore = (travel) => {
-    setSelectedTravel(travel);
-    setShowDetailsModal(true);
-    fetchWeather(travel.destination);
-    fetchActivities(travel.destination);
-    fetchLocationCoordinates(travel.destination); // Fetch coordinates for map
-  };
-
-  const handleLoadMore = () => {
-    setVisibleCount((prevCount) => prevCount + 6);
-  };
-
-  const handleSearchLocation = () => {
-    fetchWeather(searchedLocation);
-    fetchActivities(searchedLocation);
-    fetchLocationCoordinates(searchedLocation); // Fetch coordinates for searched location
-  };
-
-  const handleAddToFavorites = (place) => {
-    setFavoritePlaces((prev) => [...prev, place]);
-  };
-
   const fetchLocationCoordinates = async (location) => {
     try {
       const response = await fetch(
@@ -115,6 +81,33 @@ const LandingPage = () => {
     } catch (error) {
       console.error("Error fetching location coordinates:", error.message);
     }
+  };
+
+  const handleCloseDetailsModal = () => {
+    setShowDetailsModal(false);
+    setSelectedTravel(null);
+    setWeatherInfo(null);
+    setForecast(null);
+  };
+
+  const handleViewMore = (travel) => {
+    setSelectedTravel(travel);
+    setShowDetailsModal(true);
+    fetchWeather(travel.destination);
+    fetchLocationCoordinates(travel.destination); // Fetch coordinates for map
+  };
+
+  const handleLoadMore = () => {
+    setVisibleCount((prevCount) => prevCount + 6);
+  };
+
+  const handleSearchLocation = () => {
+    fetchWeather(searchedLocation);
+    fetchLocationCoordinates(searchedLocation); // Fetch coordinates for searched location
+  };
+
+  const handleAddToFavorites = (place) => {
+    setFavoritePlaces((prev) => [...prev, place]);
   };
 
   const getWeatherMessage = () => {
@@ -284,31 +277,44 @@ const LandingPage = () => {
             </Button>
           </div>
 
-          {/* Map */}
-          <div style={{ marginTop: "5px" }}>
-            <MapView
-              location={selectedTravel?.destination}
-              coordinates={locationCoordinates} // Pass the dynamic coordinates
-            />
+          {/* Map and Activities */}
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div style={{ width: "60%" }}>
+              <MapView
+                location={selectedTravel?.destination}
+                coordinates={locationCoordinates} // Pass the dynamic coordinates
+              />
+            </div>
+            <div style={{ width: "35%", paddingLeft: "20px" }}>
+              <ActivityRecommendations weather={weatherInfo} />
+            </div>
           </div>
 
           {/* Add to Favorites */}
           <Button
             variant="success"
-            onClick={() => handleAddToFavorites(selectedTravel)}
-            style={{ marginTop: "10px" }}
+            onClick={() => handleAddToFavorites(selectedTravel?.destination)}
+            style={{ marginTop: "20px" }}
           >
             Add to Favorites
           </Button>
 
-          {/* Activity Recommendations */}
-          <ActivityRecommendations weather={weatherInfo} />
+          {/* Share Buttons */}
+          <div style={{ marginTop: "20px" }}>
+            <FacebookShareButton
+              url={`https://www.example.com/${selectedTravel?.destination}`}
+              quote="Check out this amazing destination!"
+            >
+              <FacebookIcon size={32} round />
+            </FacebookShareButton>
+            <WhatsappShareButton
+              url={`https://www.example.com/${selectedTravel?.destination}`}
+              title="Check out this amazing destination!"
+            >
+              <WhatsappIcon size={32} round />
+            </WhatsappShareButton>
+          </div>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseDetailsModal}>
-            Close
-          </Button>
-        </Modal.Footer>
       </Modal>
     </div>
   );
